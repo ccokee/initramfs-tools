@@ -1,0 +1,30 @@
+#!/bin/sh
+
+PREREQ="udev iptables tor"
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+[ -x /sbin/openvpn ] || exit 0
+
+run_openvpn() {
+    local vpnflags="/etc/openvpn/client/vot.conf"
+
+    log_begin_msg "Starting openvpn..."
+
+    exec /sbin/openvpn $flags
+}
+
+. /scripts/functions
+
+run_openvpn &
+echo $! >/run/openvpn.pid
+

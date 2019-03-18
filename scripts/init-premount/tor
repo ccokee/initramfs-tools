@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PREREQ="udev iptables network"
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+[ -x /sbin/tor ] || exit 0
+
+run_tor() {
+ 
+    log_begin_msg "Running TOR..."	
+
+    exec tor
+}
+
+. /scripts/functions
+
+run_tor &
+echo $! >/run/tor.pid

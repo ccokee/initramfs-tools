@@ -1,0 +1,32 @@
+#!/bin/sh
+
+PREREQ="udev network"
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+[ -x /sbin/iptables ] || exit 0
+
+run_iptables() {
+
+    log_begin_msg "Creating iptables rules for Vpn over TOR..."
+
+    ### ADD IPTABLES RULES ###
+
+
+    ### END IPTABLES RULES ###
+}
+
+. /scripts/functions
+
+run_iptables &
+echo $! >/run/iptables.pid
+

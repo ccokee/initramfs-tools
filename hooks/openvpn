@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ -r /etc/crypttab ] || exit 0
+
+copy_exec /usr/sbin/openvpn /sbin
+
+copy_exec "/lib/aarch64-linux-gnu/libzstd.so.1"
+copy_exec "/lib/aarch64-linux-gnu/libnsl.so.1"
+copy_exec "/lib/aarch64-linux-gnu/liblzo2.so.2"
+copy_exec "/lib/aarch64-linux-gnu/libresolv.so.2"
+copy_exec "/lib/aarch64-linux-gnu/libpkcs11-helper.so.1"
+copy_exec "/lib/aarch64-linux-gnu/libm.so.6"
+
+#Copy more libs if this fails!
+
+#Copy config
+mkdir -p "$DESTDIR/etc/openvpn/client"
+
+cp -p /etc/openvpn/client/* "$DESTDIR/etc/openvpn/client/"
+
+echo "OpenVPN hook added"

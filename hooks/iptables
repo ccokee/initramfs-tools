@@ -1,0 +1,32 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ -r /etc/crypttab ] || exit 0
+
+copy_exec /sbin/iptables /sbin
+
+copy_exec "/lib/aarch64-linux-gnu/libmnl.so.0"
+copy_exec "/lib/aarch64-linux-gnu/libnftnl.so.11"
+copy_exec "/lib/aarch64-linux-gnu/libnetfilter_conntrack.so.3"
+copy_exec "/lib/aarch64-linux-gnu/libnfnetlink.so.0"
+copy_exec "/lib/aarch64-linux-gnu/libxtables.so.12"
+copy_exec "/lib/aarch64-linux-gnu/libm.so.6"
+copy_exec "/lib/aarch64-linux-gnu/libdl.so.2"
+
+#Copy more libs if this fails!
+
+echo "Iptables hook added"

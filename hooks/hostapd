@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+[ -r /etc/crypttab ] || exit 0
+
+copy_exec /sbin/hostapd /sbin
+copy_exec /sbin/iw /sbin
+
+LIBC_DIR=$(ldd /sbin/hostapd | sed -nr 's#.* => (/lib.*)/libc\.so\.[0-9.-]+ \(0x[[:xdigit:]]+\)$#\1#p')
+find -L "$LIBC_DIR" -maxdepth 1 -name 'libnss_files.*' -type f | while read so; do
+    copy_exec "$so"
+done
+copy_exec "/lib/aarch64-linux-gnu/libnl-route-3.so.200"
+copy_exec "/lib/aarch64-linux-gnu/libnl-genl-3.so.200"
+copy_exec "/lib/aarch64-linux-gnu/libnl-3.so.200"
+#Copy more libs if this fails!
+
+#Copy config
+mkdir -p "$DESTDIR/etc/hostapd"
+cp -p "/etc/hostapd/hostapd.conf" "$DESTDIR/etc/hostapd/"
+
+echo "Hostapd hook added"

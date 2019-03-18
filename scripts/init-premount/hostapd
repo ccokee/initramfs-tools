@@ -1,0 +1,37 @@
+#!/bin/sh
+
+PREREQ="udev"
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+[ -x /sbin/hostapd ] || exit 0
+
+
+run_hostapd() {
+    local flags="/etc/hostapd/hostapd.conf"
+     
+    log_begin_msg "Setting monitor mode..."	
+     
+    ifconfig wlan0 up
+    iw wlan0 interface add mon0 type monitor 
+    ifconfig mon0 up
+   
+    log_begin_msg "Starting hostapd..."
+
+    exec /sbin/hostapd $flags
+}
+
+. /scripts/functions
+
+run_hostapd &
+echo $! >/run/hostapd.pid
+
