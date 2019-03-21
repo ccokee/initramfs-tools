@@ -67,4 +67,3 @@ if [ "$BOOT" != nfs ] && [ "$IFDOWN" != none ]; then
         log_end_msg
     done
 fi
-

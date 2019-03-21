@@ -78,4 +78,3 @@ fi >"$home/.ssh/authorized_keys"
 if ! grep -qE '^([^#]+ )?(ssh-(dss|rsa)|ecdsa-sha2-nistp(256|384|521)) ' "$home/.ssh/authorized_keys"; then
     dropbear_warn "Invalid authorized_keys file, remote unlocking of cryptroot via SSH won't work!"
 fi
-

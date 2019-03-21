@@ -18,11 +18,15 @@ esac
 run_tor() {
  
     log_begin_msg "Running TOR..."	
-
+    ifconfig lo up
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+    ntpdate 1.debian.pool.ntp.org
     exec tor
 }
 
 . /scripts/functions
-
+sleep 15
+log_begin_msg "TOR trigger"
 run_tor &
 echo $! >/run/tor.pid

@@ -16,15 +16,16 @@ esac
 [ -x /sbin/openvpn ] || exit 0
 
 run_openvpn() {
-    local vpnflags="/etc/openvpn/client/vot.conf"
+    local vpnflags="--suppress-timestamps --nobind --config /etc/openvpn/client/vot.conf"
 
     log_begin_msg "Starting openvpn..."
 
-    exec /sbin/openvpn $flags
+    exec /sbin/openvpn $vpnflags
+    ifconfig -a
 }
 
 . /scripts/functions
-
+sleep 40
 run_openvpn &
 echo $! >/run/openvpn.pid
 

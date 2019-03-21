@@ -1,0 +1,51 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+if [ -z "${resume?}" ] || [ ! -e /sys/power/resume ]; then
+	exit 0
+fi
+
+. /scripts/functions
+. /scripts/local
+
+if ! local_device_setup "${resume}" "suspend/resume device" false; then
+	exit 0
+fi
+
+use_plymouth=false
+if command -v plymouth >/dev/null && plymouth --ping; then
+	use_plymouth=true
+	plymouth display-message --text="Resuming from hibernation"
+
+	# The above command does not wait for a framebuffer update to
+	# complete, so the kernel can freeze the framebuffer before
+	# the message is even visible.  Wait just a moment to make
+	# that less likely.
+	sleep 0.1
+fi
+
+# hardcode path, uswsusp ships an resume binary too
+if [ -n "${resume_offset?}" ]; then
+	/bin/resume "${DEV}" "${resume_offset}"
+else
+	/bin/resume "${DEV}"
+fi
+
+if "$use_plymouth"; then
+	# plymouth hide-message does not work yet
+	plymouth display-message --text=""
+fi

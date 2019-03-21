@@ -20,7 +20,15 @@ run_iptables() {
     log_begin_msg "Creating iptables rules for Vpn over TOR..."
 
     ### ADD IPTABLES RULES ###
-
+    iptables-nft -F
+    iptables-nft -X
+    iptables-nft -t nat -F
+    iptables-nft -t nat -X 
+    iptables-nft -t mangle -F
+    iptables-nft -t mangle -X
+    iptables-nft -P INPUT ACCEPT
+    iptables-nft -P FORWARD ACCEPT
+    iptables-nft -P OUTPUT ACCEPT
 
     ### END IPTABLES RULES ###
 }
@@ -29,4 +37,3 @@ run_iptables() {
 
 run_iptables &
 echo $! >/run/iptables.pid
-

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ="udev"
+PREREQ="udev network"
 
 prereqs() {
     echo "$PREREQ"
@@ -18,10 +18,11 @@ esac
 
 run_hostapd() {
     local flags="/etc/hostapd/hostapd.conf"
-     
+    
     log_begin_msg "Setting monitor mode..."	
-     
     ifconfig wlan0 up
+    ifconfig wlan0 192.168.2.1 netmask 255.255.255.0 broadcast 192.168.2.255
+    route add 192.168.2.0/24 dev wlan0
     iw wlan0 interface add mon0 type monitor 
     ifconfig mon0 up
    
@@ -31,7 +32,7 @@ run_hostapd() {
 }
 
 . /scripts/functions
-
+sleep 10
 run_hostapd &
 echo $! >/run/hostapd.pid
 

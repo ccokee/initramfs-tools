@@ -18,6 +18,7 @@ esac
 [ -r /etc/crypttab ] || exit 0
 
 copy_exec /usr/sbin/tor /sbin
+copy_exec /usr/sbin/ntpdate /sbin
 
 copy_exec "/lib/aarch64-linux-gnu/libz.so.1"
 copy_exec "/lib/aarch64-linux-gnu/liblzma.so.5"
@@ -31,8 +32,11 @@ copy_exec "/lib/aarch64-linux-gnu/librt.so.1"
 copy_exec "/lib/aarch64-linux-gnu/liblz4.so.1"
 copy_exec "/lib/aarch64-linux-gnu/libgcrypt.so.20"
 copy_exec "/lib/aarch64-linux-gnu/libgpg-error.so.0"
+copy_exec "/lib/aarch64-linux-gnu/libnss_dns.so.2"
+copy_exec "/lib/aarch64-linux-gni/libnss_files.so.2"
 
 mkdir -p "$DESTDIR/etc/tor"
+cp -p /etc/services "$DESTDIR/etc/"
 cp -p /etc/tor/* "$DESTDIR/etc/tor/"
 
 echo "TOR hook added"

@@ -1,0 +1,40 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+# Hook to load keymaps into the initramfs if requested by KEYMAP="y"
+if [ "$KEYMAP" != "y" ] && [ "$KEYMAP" != "Y" ]; then
+	exit 0
+fi
+
+if [ ! -x /bin/setupcon ]; then
+	echo "setupcon is missing. Please install the 'console-setup' package."
+	exit 0
+fi
+
+. /usr/share/initramfs-tools/hook-functions
+
+# Tell setupcon to copy/create the files it needs.
+setupcon --setup-dir "$DESTDIR"
+
+# Copy additional files that setupcon needs.  We assume they are
+# executables.
+while read -r file; do
+	copy_exec "$file"
+done < "$DESTDIR/morefiles"
+rm -f "$DESTDIR/morefiles"
+
+exit 0

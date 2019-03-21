@@ -17,7 +17,9 @@ esac
 
 [ -r /etc/crypttab ] || exit 0
 
-copy_exec /sbin/iptables /sbin
+manual_add_modules nftables ip_tables
+
+copy_exec /sbin/iptables-nft /sbin
 
 copy_exec "/lib/aarch64-linux-gnu/libmnl.so.0"
 copy_exec "/lib/aarch64-linux-gnu/libnftnl.so.11"
