@@ -1,6 +1,9 @@
 #!/bin/sh
 
 PREREQ="udev network"
+NON_TOR=""
+TOR_UID="0"
+TRANS_PORT="60140"
 
 prereqs() {
     echo "$PREREQ"
@@ -18,7 +21,11 @@ esac
 run_iptables() {
 
     log_begin_msg "Creating iptables rules for Vpn over TOR..."
-
+    for IFACE in $(ip link show | grep "state UP" | awk '{print $2}')
+    do
+       NON_TOR+="$(ip addr show dev $IFACE | sed -n 3p | awk '{print $2}') "
+       log_begin_msg "$IFACE network added as non-tor network"
+    done
     ### ADD IPTABLES RULES ###
     iptables-nft -F
     iptables-nft -X
@@ -30,9 +37,26 @@ run_iptables() {
     iptables-nft -P FORWARD ACCEPT
     iptables-nft -P OUTPUT ACCEPT
 
-    ### END IPTABLES RULES ###
-}
+    iptables-nft -t nat -A OUTPUT -m owner --uid-owner $TOR_UID -j RETURN
+    iptables-nft -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 5353
 
+    for NET in $NON_TOR 127.0.0.0/9 127.128.0.0/10; do
+       iptables-nft -t nat -A OUTPUT -d $NET -j RETURN
+    done
+
+    iptables-nft -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $TRANS_PORT
+    iptables-nft -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+    for NET in $NON_TOR 127.0.0.0/8; do
+    iptables-nft -A OUTPUT -d $NET -j ACCEPT
+    done
+
+    iptables-nft -A OUTPUT -m owner --uid-owner $TOR_UID -j ACCEPT
+    iptables-nft -A OUTPUT -j ACCEPT
+
+    log_begin_msg "All nft rules set"
+}
+sleep 10
 . /scripts/functions
 
 run_iptables &
